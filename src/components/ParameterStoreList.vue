@@ -7,7 +7,7 @@
                         <b-input v-model="accessKeyId" placeholder="accessKeyId"></b-input>
                     </b-field>
                     <b-field label="secretAccessKey">
-                        <b-input v-model="secretAccessKey" placeholder="secretAccessKey"></b-input>
+                        <b-input type="password" v-model="secretAccessKey" placeholder="secretAccessKey" password-reveal></b-input>
                     </b-field>
                     <b-field label="region">
                         <b-input v-model="region" placeholder="region"></b-input>
@@ -15,16 +15,38 @@
                 </section>
                 <div class="buttons controls__login-buttons">
                     <b-button :disabled="ssm" @click="sign()">Sign</b-button>
-                    <b-button type="is-primary" :disabled="!ssm" :loading="loading" @click="getAllParameters()">Get all
-                        parameters
-                    </b-button>
                 </div>
             </div>
 
             <div class="controls__card card">
-                <b-field label="Search by Name">
-                    <b-input v-model="searchByName" placeholder="Search by Name" rounded></b-input>
+
+                <b-field>
+                    <b-button type="is-primary" :disabled="!ssm" :loading="loading" @click="getAllParameters()">Get all
+                        parameters
+                    </b-button>
+
+                    <span class="controls__path-label">By path: </span>
+
+                    <b-input v-model="path" :disabled="this.loading" placeholder="by path"></b-input>
                 </b-field>
+
+                <hr>
+
+                <b-field label="Local Filter, Search by:">
+                    <b-select v-model="searchField" placeholder="Select a Field">
+                        <option
+                                v-for="option in ['Name', 'Value']"
+                                :value="option"
+                                :key="option">
+                            {{ option }}
+                        </option>
+                    </b-select>
+                </b-field>
+
+                <b-field>
+                    <b-input v-model="searchText" placeholder="Search value" rounded></b-input>
+                </b-field>
+
             </div>
         </div>
 
@@ -44,7 +66,7 @@
                         <div style="width: 400px" class="ellipsis">{{ props.row.Value }}</div>
                     </b-table-column>
 
-                    <b-table-column field="Date" label="Date" sortable centered>
+                    <b-table-column field="Date" label="LastModifiedDate" sortable centered>
                     <span class="tag is-success">
                         {{ new Date(props.row.LastModifiedDate).toLocaleDateString() }}
                     </span>
@@ -70,18 +92,20 @@
                 list: [],
                 originalList: [],
                 loading: false,
-                searchByName: ''
+                path: '/',
+                searchField: 'Name',
+                searchText: ''
             }
         },
         watch: {
-            searchByName: function (newValue) {
-                if (!newValue || newValue.length < 2) {
+            searchText: function (newValue) {
+                if (!this.searchField || !newValue || newValue.length < 2) {
                     this.list = this.originalList;
                     return;
                 }
 
                 this.list = this.originalList.filter((parameter) => {
-                    return parameter.Name.toLowerCase().includes(this.searchByName.toLowerCase())
+                    return parameter[this.searchField].toLowerCase().includes(this.searchText.toLowerCase());
                 });
             }
         },
@@ -105,7 +129,11 @@
             getAllParameters() {
                 this.loading = true;
 
-                this.list = this.originalList;
+                if (this.searchText !== '') {
+                    this.searchText = '';
+                }
+
+                this.list = this.originalList = [];
 
                 this.fetchAllParameters(this.originalList)
                     .then(() => {
@@ -114,7 +142,7 @@
             },
             fetchAllParameters(results, nextToken) {
                 const options = {
-                    Path: '/',
+                    Path: this.path,
                     Recursive: true
                 };
 
@@ -155,6 +183,10 @@
     .controls__card {
         width: 500px;
         padding: 20px;
+    }
+
+    .controls__path-label {
+        line-height: 40px;
     }
 
     .controls__login-buttons {
