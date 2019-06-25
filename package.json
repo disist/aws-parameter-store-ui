@@ -6,7 +6,8 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "build:prod": "vue-cli-service build --mode production",
-    "deploy": "git subtree push --prefix dist origin gh-pages",
+    "push:pages": "git subtree push --prefix dist origin gh-pages",
+    "deploy:pages": "npm run build:prod && npm run push:pages",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
