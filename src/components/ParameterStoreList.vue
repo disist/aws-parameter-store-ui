@@ -21,8 +21,30 @@
 
         </div>
 
-        <div class="container">
-            <b-table :data="list" :columns="columns"></b-table>
+        <div class="container parameter-store-list">
+            <b-table :data="list">
+
+                <template slot-scope="props">
+                    <b-table-column field="Name" label="Name" sortable>
+                        <div style="width: 400px" class="ellipsis" :title="props.row.Name">{{ props.row.Name }}</div>
+                    </b-table-column>
+
+                    <b-table-column field="Type" label="Type" sortable>
+                        {{ props.row.Type }}
+                    </b-table-column>
+
+                    <b-table-column field="Value" label="Value" sortable>
+                        <div style="width: 400px" class="ellipsis" :title="props.row.Value">{{ props.row.Value }}</div>
+                    </b-table-column>
+
+                    <b-table-column field="Date" label="Date" sortable centered>
+                    <span class="tag is-success" :title="props.row.LastModifiedDate">
+                        {{ new Date(props.row.LastModifiedDate).toLocaleDateString() }}
+                    </span>
+                    </b-table-column>
+
+                </template>
+            </b-table>
         </div>
     </div>
 </template>
@@ -39,29 +61,7 @@
                 region: '',
                 ssm: null,
                 list: [],
-                loading: false,
-                columns: [
-                    {
-                        field: 'Name',
-                        label: 'Name',
-                        sortable: true
-                    },
-                    {
-                        field: 'Type',
-                        label: 'Type',
-                        sortable: true
-                    },
-                    {
-                        field: 'Value',
-                        label: 'Value'
-                    },
-                    {
-                        field: 'LastModifiedDate',
-                        label: 'Date',
-                        centered: true,
-                        sortable: true
-                    }
-                ]
+                loading: false
             }
         },
         created: function () {
@@ -84,10 +84,11 @@
             getAllParameters() {
                 this.loading = true;
 
-                this.fetchAllParameters([])
-                    .then((results) => {
+                this.list = [];
+
+                this.fetchAllParameters(this.list)
+                    .then(() => {
                         this.loading = false;
-                        this.list = results;
                     });
             },
             fetchAllParameters(results, nextToken) {
@@ -108,7 +109,7 @@
                         return parameter;
                     });
 
-                    results = results.concat(tempList);
+                    results.push(...tempList);
 
                     if (next) {
                         return this.fetchAllParameters(results, next);
@@ -131,5 +132,15 @@
 
     .login-form__buttons {
         margin-top: 20px;
+    }
+
+    .parameter-store-list {
+        font-size: 14px;
+    }
+
+    .ellipsis {
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
     }
 </style>
