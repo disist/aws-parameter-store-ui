@@ -44,14 +44,17 @@
                 </b-field>
 
                 <b-field>
-                    <b-input v-model="searchText" placeholder="Search value" rounded></b-input>
+                    <b-taginput
+                            v-model="searchTexts"
+                            placeholder="Add search text">
+                    </b-taginput>
                 </b-field>
 
             </div>
         </div>
 
         <div class="container parameter-store-list">
-            <b-table :data="list">
+            <b-table :data="list" :striped=true :hoverable=true @click="onItemClick($event)">
 
                 <template slot-scope="props">
                     <b-table-column field="Name" label="Name" sortable>
@@ -94,18 +97,20 @@
                 loading: false,
                 path: '/',
                 searchField: 'Name',
-                searchText: ''
+                searchTexts: []
             }
         },
         watch: {
-            searchText: function (newValue) {
-                if (!this.searchField || !newValue || newValue.length < 2) {
+            searchTexts: function (newValue) {
+                if (!this.searchField || !newValue || !newValue.length) {
                     this.list = this.originalList;
                     return;
                 }
 
                 this.list = this.originalList.filter((parameter) => {
-                    return parameter[this.searchField].toLowerCase().includes(this.searchText.toLowerCase());
+                    return newValue.some((searchText) => {
+                        return parameter[this.searchField].toLowerCase().includes(searchText.toLowerCase())
+                    });
                 });
             }
         },
@@ -129,8 +134,8 @@
             getAllParameters() {
                 this.loading = true;
 
-                if (this.searchText !== '') {
-                    this.searchText = '';
+                if (this.searchTexts) {
+                    this.searchTexts = [];
                 }
 
                 this.list = this.originalList = [];
@@ -166,6 +171,9 @@
 
                     return Promise.resolve(results);
                 });
+            },
+            onItemClick(item) {
+                console.log(item);
             }
         }
     }
