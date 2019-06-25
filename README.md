@@ -1,5 +1,7 @@
 # aws-parameter-store-ui
 
+[Demo](https://disist.github.io/aws-parameter-store-ui/)
+
 ## Project setup
 ```
 npm install
