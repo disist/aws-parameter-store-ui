@@ -1,24 +1,31 @@
 <template>
     <div>
-        <div class="login-form card">
-            <section>
-                <b-field label="accessKeyId">
-                    <b-input v-model="accessKeyId" placeholder="accessKeyId"></b-input>
-                </b-field>
-                <b-field label="secretAccessKey">
-                    <b-input v-model="secretAccessKey" placeholder="secretAccessKey"></b-input>
-                </b-field>
-                <b-field label="region">
-                    <b-input v-model="region" placeholder="region"></b-input>
-                </b-field>
-            </section>
-            <div class="buttons login-form__buttons">
-                <b-button :disabled="ssm" @click="sign()">Sign</b-button>
-                <b-button type="is-primary" :disabled="!ssm" :loading="loading" @click="getAllParameters()">Get all
-                    parameters
-                </b-button>
+        <div class="controls">
+            <div class="controls__card card">
+                <section>
+                    <b-field label="accessKeyId">
+                        <b-input v-model="accessKeyId" placeholder="accessKeyId"></b-input>
+                    </b-field>
+                    <b-field label="secretAccessKey">
+                        <b-input v-model="secretAccessKey" placeholder="secretAccessKey"></b-input>
+                    </b-field>
+                    <b-field label="region">
+                        <b-input v-model="region" placeholder="region"></b-input>
+                    </b-field>
+                </section>
+                <div class="buttons controls__login-buttons">
+                    <b-button :disabled="ssm" @click="sign()">Sign</b-button>
+                    <b-button type="is-primary" :disabled="!ssm" :loading="loading" @click="getAllParameters()">Get all
+                        parameters
+                    </b-button>
+                </div>
             </div>
 
+            <div class="controls__card card">
+                <b-field label="Search by Name">
+                    <b-input v-model="searchByName" placeholder="Search by Name" rounded></b-input>
+                </b-field>
+            </div>
         </div>
 
         <div class="container parameter-store-list">
@@ -26,7 +33,7 @@
 
                 <template slot-scope="props">
                     <b-table-column field="Name" label="Name" sortable>
-                        <div style="width: 400px" class="ellipsis" :title="props.row.Name">{{ props.row.Name }}</div>
+                        <div style="width: 400px" class="ellipsis">{{ props.row.Name }}</div>
                     </b-table-column>
 
                     <b-table-column field="Type" label="Type" sortable>
@@ -34,11 +41,11 @@
                     </b-table-column>
 
                     <b-table-column field="Value" label="Value" sortable>
-                        <div style="width: 400px" class="ellipsis" :title="props.row.Value">{{ props.row.Value }}</div>
+                        <div style="width: 400px" class="ellipsis">{{ props.row.Value }}</div>
                     </b-table-column>
 
                     <b-table-column field="Date" label="Date" sortable centered>
-                    <span class="tag is-success" :title="props.row.LastModifiedDate">
+                    <span class="tag is-success">
                         {{ new Date(props.row.LastModifiedDate).toLocaleDateString() }}
                     </span>
                     </b-table-column>
@@ -61,7 +68,21 @@
                 region: '',
                 ssm: null,
                 list: [],
-                loading: false
+                originalList: [],
+                loading: false,
+                searchByName: ''
+            }
+        },
+        watch: {
+            searchByName: function (newValue) {
+                if (!newValue || newValue.length < 2) {
+                    this.list = this.originalList;
+                    return;
+                }
+
+                this.list = this.originalList.filter((parameter) => {
+                    return parameter.Name.toLowerCase().includes(this.searchByName.toLowerCase())
+                });
             }
         },
         created: function () {
@@ -84,9 +105,9 @@
             getAllParameters() {
                 this.loading = true;
 
-                this.list = [];
+                this.list = this.originalList;
 
-                this.fetchAllParameters(this.list)
+                this.fetchAllParameters(this.originalList)
                     .then(() => {
                         this.loading = false;
                     });
@@ -124,13 +145,19 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-    .login-form {
-        width: 40%;
-        padding: 20px;
-        margin: auto auto 20px;
+    .controls {
+        display: flex;
+        justify-content: space-evenly;
+
+        margin-bottom: 20px;
     }
 
-    .login-form__buttons {
+    .controls__card {
+        width: 500px;
+        padding: 20px;
+    }
+
+    .controls__login-buttons {
         margin-top: 20px;
     }
 
