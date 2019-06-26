@@ -33,7 +33,7 @@
                 <hr>
 
                 <b-field label="Local Filter, Search by:">
-                    <b-select v-model="searchField" placeholder="Select a Field">
+                    <b-select v-model="searchField" :disabled="!ssm" placeholder="Select a Field">
                         <option
                                 v-for="option in ['Name', 'Value']"
                                 :value="option"
@@ -44,10 +44,7 @@
                 </b-field>
 
                 <b-field>
-                    <b-taginput
-                            v-model="searchTexts"
-                            placeholder="Add search text">
-                    </b-taginput>
+                    <b-input v-model="searchText" :disabled="!ssm" placeholder="Search value" rounded></b-input>
                 </b-field>
 
             </div>
@@ -97,20 +94,18 @@
                 loading: false,
                 path: '/',
                 searchField: 'Name',
-                searchTexts: []
+                searchText: ''
             }
         },
         watch: {
-            searchTexts: function (newValue) {
-                if (!this.searchField || !newValue || !newValue.length) {
+            searchText: function (newValue) {
+                if (!this.searchField || !newValue || newValue.length < 2) {
                     this.list = this.originalList;
                     return;
                 }
 
                 this.list = this.originalList.filter((parameter) => {
-                    return newValue.some((searchText) => {
-                        return parameter[this.searchField].toLowerCase().includes(searchText.toLowerCase())
-                    });
+                    return parameter[this.searchField].toLowerCase().includes(this.searchText.toLowerCase());
                 });
             }
         },
@@ -134,8 +129,8 @@
             getAllParameters() {
                 this.loading = true;
 
-                if (this.searchTexts) {
-                    this.searchTexts = [];
+                if (this.searchText !== '') {
+                    this.searchText = '';
                 }
 
                 this.list = this.originalList = [];
