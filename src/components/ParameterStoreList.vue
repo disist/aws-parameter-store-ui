@@ -7,7 +7,8 @@
                         <b-input v-model="accessKeyId" placeholder="accessKeyId"></b-input>
                     </b-field>
                     <b-field label="secretAccessKey">
-                        <b-input type="password" v-model="secretAccessKey" placeholder="secretAccessKey" password-reveal></b-input>
+                        <b-input type="password" v-model="secretAccessKey" placeholder="secretAccessKey"
+                                 password-reveal></b-input>
                     </b-field>
                     <b-field label="region">
                         <b-input v-model="region" placeholder="region"></b-input>
@@ -80,6 +81,7 @@
 
 <script>
     import SSM from 'aws-sdk/clients/ssm';
+    import ParameterModal from './ParameterModal';
 
     export default {
         name: 'ParameterStoreList',
@@ -168,7 +170,25 @@
                 });
             },
             onItemClick(item) {
-                console.log(item);
+                const loadingComponent = this.$loading.open({isFullPage: true});
+
+                Promise.all([
+                    this.ssm.getParameter({Name: item.Name }).promise(),
+                    this.ssm.getParameterHistory({Name: item.Name}).promise()
+                ]).then(([parameter, parameterHistory]) => {
+                    loadingComponent.close();
+
+                    this.$modal.open({
+                        parent: this,
+                        component: ParameterModal,
+                        hasModalCard: true,
+                        props: {
+                            item: parameter.Parameter,
+                            parameterHistory: parameterHistory.Parameters,
+                            ssmClient: this.ssm
+                        }
+                    });
+                });
             }
         }
     }
@@ -198,11 +218,5 @@
 
     .parameter-store-list {
         font-size: 14px;
-    }
-
-    .ellipsis {
-        text-overflow: ellipsis;
-        overflow: hidden;
-        white-space: nowrap;
     }
 </style>

@@ -23,4 +23,10 @@ export default {
   color: #2c3e50;
   margin-top: 20px;
 }
+
+.ellipsis {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
 </style>
