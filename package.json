@@ -7,7 +7,7 @@
     "build": "vue-cli-service build",
     "build:prod": "vue-cli-service build --mode production",
     "push:pages": "git subtree push --prefix dist origin gh-pages",
-    "deploy:pages": "npm run build:prod && git add . && git commit -m \"Update dist\" && npm run push:pages && git reset HEAD~1 --hard",
+    "deploy:pages": "npm run build:prod && git add . && git commit -m \"Update dist\" && git push origin && npm run push:pages",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
