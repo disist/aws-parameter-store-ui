@@ -1,52 +1,52 @@
 <template>
     <div>
         <div class="parameter-modal card">
+            <h1 class="title">
+                    [Parameter] {{ itemForChange.Name }}
+            </h1>
+            <i><h4 class="subtitle is-6">Last modified on {{ itemForChange.LastModifiedDate.toLocaleString()}} UTC</h4></i>
 
-            <section>
-                <b-field label="Name">
-                    <span>{{ itemForChange.Name }}</span>
-                </b-field>
-
+            <section class="section">
                 <b-field label="Value">
                     <b-input type="textarea" v-model="itemForChange.Value" placeholder="Value"></b-input>
                 </b-field>
 
-                <b-field label="LastModifiedDate">
-                    <span>{{ itemForChange.LastModifiedDate }}</span>
-                </b-field>
-
-                <b-field label="History:">
-                    <b-table :data="parameterHistory" :striped=true class="parameter-modal__history-table">
-
-                        <template slot-scope="props">
-                            <b-table-column field="Version" label="Version" width="40" numeric sortable>
-                                {{ props.row.Version }}
-                            </b-table-column>
-
-                            <b-table-column field="Value" label="Value" sortable>
-                                <div style="max-width: 400px" class="ellipsis" :title="props.row.Value">{{
-                                    props.row.Value }}
-                                </div>
-                            </b-table-column>
-
-                            <b-table-column field="LastModifiedUser" label="LastModifiedUser" sortable>
-                                {{ props.row.LastModifiedUser }}
-                            </b-table-column>
-
-                            <b-table-column field="Date" label="LastModifiedDate" sortable>
-                                <span class="tag is-success">
-                                    {{ new Date(props.row.LastModifiedDate).toLocaleDateString() }}
-                                </span>
-                            </b-table-column>
-
-                        </template>
-                    </b-table>
-                </b-field>
-
+                <div class="parameter-modal__buttons buttons">
+                    <b-button @click="onSave()" type="is-success">Save</b-button>
+                </div>
             </section>
-            <div class="parameter-modal__buttons buttons">
-                <b-button @click="onSave()" type="is-success">Save</b-button>
-            </div>
+
+
+            <section class="section">
+                <div class="container">
+                    <h1 class="title">Previous Versions</h1>
+                    <b-table :data="parameterHistory" :striped=true class="parameter-modal__history-table" :narrowed="true">
+
+                    <template slot-scope="props">
+                        <b-table-column field="Version" label="#" width="40" numeric sortable>
+                            {{ props.row.Version }}
+                        </b-table-column>
+
+                        <b-table-column field="Value" label="Value" sortable>
+                            <div style="max-width: 400px" class="ellipsis" :title="props.row.Value">{{
+                                props.row.Value }}
+                            </div>
+                        </b-table-column>
+
+                        <b-table-column field="LastModifiedUser" label="Modifier" sortable>
+                            {{ props.row.LastModifiedUser }}
+                        </b-table-column>
+
+                        <b-table-column field="Date" label="Modified At" sortable>
+                            <span class="tag is-success">
+                                {{ new Date(props.row.LastModifiedDate).toLocaleDateString() }}
+                            </span>
+                        </b-table-column>
+
+                    </template>
+                </b-table>
+                </div>
+            </section>
         </div>
     </div>
 </template>
@@ -113,12 +113,6 @@
         padding: 20px;
 
         overflow-y: scroll;
-    }
-
-    .parameter-modal__buttons {
-        position: absolute;
-        top: 20px;
-        right: 20px;
     }
 
     .parameter-modal__history-table {
