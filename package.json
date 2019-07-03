@@ -6,8 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "build:prod": "vue-cli-service build --mode production",
-    "push:pages": "git subtree push --prefix dist origin gh-pages",
-    "deploy:pages": "npm run build:prod && git add . && git commit -m \"Update dist\" && git push origin && npm run push:pages",
+    "deploy:pages": "npm run build:prod && gh-pages -d dist",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
@@ -23,6 +22,7 @@
     "babel-eslint": "^10.0.1",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
+    "gh-pages": "^2.0.1",
     "vue-template-compiler": "^2.6.10"
   }
 }
