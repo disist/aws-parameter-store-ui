@@ -84,7 +84,7 @@
                     </b-field>
 
                     <b-field>
-                        <b-input v-model="searchText" :disabled="!ssm" placeholder="Search value" rounded></b-input>
+                        <b-input v-model="searchText" @input="onSearchText" :disabled="!ssm" placeholder="Search value" rounded></b-input>
                     </b-field>
 
                 </div>
@@ -124,6 +124,7 @@
     import SSM from 'aws-sdk/clients/ssm';
     import ParameterModal from './ParameterModal';
     import ProfileModal from './ProfileModal';
+    import { debounce } from '../helpers';
 
     export default {
         name: 'ParameterStoreList',
@@ -146,18 +147,6 @@
                 path: '/',
                 searchField: 'Name',
                 searchText: ''
-            }
-        },
-        watch: {
-            searchText: function (newValue) {
-                if (!this.searchField || !newValue || newValue.length < 2) {
-                    this.list = this.originalList;
-                    return;
-                }
-
-                this.list = this.originalList.filter((parameter) => {
-                    return parameter[this.searchField].toLowerCase().includes(this.searchText.toLowerCase());
-                });
             }
         },
         created: function () {
@@ -207,6 +196,16 @@
 
                 this.ssm = null;
             },
+            onSearchText: debounce(function(newValue) {
+                if (!this.searchField || !newValue || newValue.length < 2) {
+                    this.list = this.originalList;
+                    return;
+                }
+
+                this.list = this.originalList.filter((parameter) => {
+                    return parameter[this.searchField].toLowerCase().includes(this.searchText.toLowerCase());
+                });
+            }, 500),
             createNewProfile() {
                 this.$modal.open({
                     parent: this,
