@@ -6,21 +6,23 @@
             </h1>
             <i><h4 class="subtitle is-6">Last modified on {{ itemForChange.LastModifiedDate.toLocaleString()}} UTC</h4></i>
 
-            <section class="section">
+            <section class="parameter-modal__section">
                 <b-field label="Value">
                     <b-input type="textarea" v-model="itemForChange.Value" placeholder="Value"></b-input>
                 </b-field>
 
                 <div class="parameter-modal__buttons buttons">
                     <b-button @click="onSave()" type="is-success">Save</b-button>
+
+                    <b-button @click="onDelete()" type="is-danger">Delete</b-button>
                 </div>
             </section>
 
 
-            <section class="section">
+            <section class="parameter-modal__section">
                 <div class="container">
                     <h1 class="title">Previous Versions</h1>
-                    <b-table :data="parameterHistory" :striped=true class="parameter-modal__history-table" :narrowed="true">
+                    <b-table :data="parameterHistory" :striped=true :narrowed="true">
 
                     <template slot-scope="props">
                         <b-table-column field="Version" label="#" width="40" numeric sortable>
@@ -84,6 +86,7 @@
                                 message: 'Value has been changed',
                                 type: 'is-success'
                             });
+                            this.$emit('parameter:updated', this.itemForChange);
                             this.$emit('close');
                         })
                         .catch((e) => {
@@ -99,6 +102,23 @@
                         type: 'is-danger'
                     });
                 }
+            },
+            onDelete() {
+                this.$dialog.confirm({
+                    title: 'Deleting parameter',
+                    message: 'Are you sure you want to <b>delete</b> your parameter? This action cannot be undone.',
+                    confirmText: 'Delete Parameter',
+                    type: 'is-danger',
+                    onConfirm: () => {
+                        this.ssmClient.deleteParameter({ Name: this.item.Name })
+                            .promise()
+                            .then(() => {
+                                this.$toast.open('Parameter deleted!');
+                                this.$emit('parameter:deleted', this.item);
+                                this.$emit('close');
+                            });
+                    }
+                })
             }
         }
     }
@@ -108,16 +128,20 @@
 <style scoped>
     .parameter-modal {
         width: 80vw;
-        height: 80vh;
+        height: 85vh;
 
         padding: 20px;
 
         overflow-y: scroll;
     }
 
-    .parameter-modal__history-table {
-        overflow-y: scroll;
-        height: 30vh;
+    .parameter-modal__buttons {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .parameter-modal__section {
+        padding: 10px 15px;
     }
 
 </style>

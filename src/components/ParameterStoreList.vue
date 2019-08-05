@@ -97,7 +97,7 @@
 
                 <template slot-scope="props">
                     <b-table-column field="Name" label="Name" sortable>
-                        <div style="width: 400px" class="ellipsis">{{ props.row.Name }}</div>
+                        <div style="width: calc(50vw - 150px - 63px);" class="ellipsis">{{ props.row.Name }}</div>
                     </b-table-column>
 
                     <b-table-column field="Type" label="Type" sortable>
@@ -105,7 +105,7 @@
                     </b-table-column>
 
                     <b-table-column field="Value" label="Value" sortable>
-                        <div style="width: 400px" class="ellipsis">{{ props.row.Value }}</div>
+                        <div style="width: calc(50vw - 150px - 63px);" class="ellipsis">{{ props.row.Value }}</div>
                     </b-table-column>
 
                     <b-table-column field="Date" label="LastModifiedDate" sortable centered>
@@ -202,9 +202,7 @@
                     return;
                 }
 
-                this.list = this.originalList.filter((parameter) => {
-                    return parameter[this.searchField].toLowerCase().includes(this.searchText.toLowerCase());
-                });
+                this._applySearch();
             }, 500),
             createNewProfile() {
                 this.$modal.open({
@@ -277,6 +275,10 @@
                             item: parameter.Parameter,
                             parameterHistory: parameterHistory.Parameters,
                             ssmClient: this.ssm
+                        },
+                        events: {
+                            'parameter:updated': this.onParameterUpdated,
+                            'parameter:deleted': this.onParameterDeleted
                         }
                     });
                 });
@@ -285,6 +287,32 @@
                 this.ssm = null;
 
                 this.init();
+            },
+            onParameterUpdated(updatedParameter) {
+                this.list.forEach((parameter) => {
+                    if (parameter.Name === updatedParameter.Name) {
+                        parameter.Value = updatedParameter.Value;
+                    }
+                });
+
+                this.originalList.forEach((parameter) => {
+                    if (parameter.Name === updatedParameter.Name) {
+                        parameter.Value = updatedParameter.Value;
+                    }
+                });
+
+                this._applySearch();
+            },
+            onParameterDeleted(deletedParameter) {
+                this.list = this.list.filter((parameter) => {
+                    return parameter.Name !== deletedParameter.Name;
+                });
+
+                this.originalList = this.originalList.filter((parameter) => {
+                    return parameter.Name !== deletedParameter.Name;
+                });
+
+                this._applySearch();
             },
             _readProfile(index) {
                 this.accessKeyId = this.profiles[index].accessKeyId;
@@ -295,6 +323,11 @@
             _saveProfile() {
                 localStorage.setItem('profiles', JSON.stringify(this.profiles));
                 localStorage.setItem('activeProfile', this.activeProfile);
+            },
+            _applySearch() {
+                this.list = this.originalList.filter((parameter) => {
+                    return parameter[this.searchField].toLowerCase().includes(this.searchText.toLowerCase());
+                });
             }
         }
     }

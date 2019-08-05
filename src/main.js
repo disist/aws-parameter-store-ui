@@ -10,6 +10,7 @@ import Modal from 'buefy/dist/components/modal';
 import Toast from 'buefy/dist/components/toast';
 import Collapse from 'buefy/dist/components/collapse';
 import Dropdown from 'buefy/dist/components/dropdown';
+import Dialog from 'buefy/dist/components/dialog';
 import 'buefy/dist/buefy.css';
 
 Vue.config.productionTip = false;
@@ -24,6 +25,7 @@ Vue.use(Modal);
 Vue.use(Toast);
 Vue.use(Collapse);
 Vue.use(Dropdown);
+Vue.use(Dialog);
 
 new Vue({
   render: h => h(App),
