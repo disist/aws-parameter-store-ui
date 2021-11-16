@@ -10,7 +10,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
-    "aws-sdk": "^2.481.0",
+    "aws-sdk": "^2.814.0",
     "buefy": "^0.7.7",
     "core-js": "^2.6.5",
     "vue": "^2.6.10"
